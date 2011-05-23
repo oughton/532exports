@@ -1,7 +1,4 @@
 <?php
-
-$row = 0;
-
 if (($handle = fopen("geodata.csv", "r")) !== FALSE) {
 
     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
