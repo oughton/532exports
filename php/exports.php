@@ -1,6 +1,13 @@
 <?php
 
 $row = 0;
+//$geoUrl = "http://maps.googleapis.com/maps/api/geocode/json?sensor=true&address=Australia";
+//$countryToGeo;
+
+//$geoJson = file_get_contents($geoUrl, 0, null, null);
+//print_r(json_decode($geoJson));
+//$geoData = json_decode($geoJson);
+//echo "<br/>" . $geoData->status;
 
 if (($handle = fopen("newzealand_exports.csv", "r")) !== FALSE) {
 
@@ -15,7 +22,7 @@ if (($handle = fopen("newzealand_exports.csv", "r")) !== FALSE) {
         
         for ($c=1; $c < $num; $c++) {
             //echo $data[$c] . "<br />\n";
-            $output["years"][$header[$c]][$data[0]] = $data[$c];
+            $output["years"][$header[$c]][$data[0]] = array("exports" => $data[$c]);
         }
 
         $row += 1;
