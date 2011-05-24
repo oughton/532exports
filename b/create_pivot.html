@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Google Maps JavaScript API v3 Example: Polyline Complex</title>
+<link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript">
+
+  var poly;
+  var map;
+  var markerm;
+
+  function initialize() {
+    var chicago = new google.maps.LatLng(41.879535, -87.624333);
+    var myOptions = {
+      zoom: 7,
+      center: chicago,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    map = new google.maps.Map(document.getElementById('map_canvas'), myOptions);
+
+    var polyOptions = {
+      strokeColor: '#000000',
+      strokeOpacity: 1.0,
+      strokeWeight: 3
+    }
+    poly = new google.maps.Polyline(polyOptions);
+    poly.setMap(map);
+    
+    var path = poly.getPath();
+    path.push(new google.maps.LatLng(41.891,-87.62433));
+    path.push(new google.maps.LatLng(41.891,-89.62344));
+
+    // Add a listener for the click event
+    google.maps.event.addListener(map, 'click', function(event){
+        //insert point,
+        var path = poly.getPath();
+        var l = path.pop();
+        path.push(event.latLng);
+        path.push(l);
+
+        var marker = new google.maps.Marker({
+            position : event.latLng,
+            title: '#' + path.getLength(),
+            map:map
+        });
+        markerm = marker;
+
+    });
+  }
+
+
+</script>
+</head>
+<body onload="initialize()">
+  <div id="map_canvas"></div>
+</body>
+</html>
