@@ -8,8 +8,9 @@
 <script language="javascript" type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 </head>
 <body>
-
+<p>Right click to set pivot point. Then click on a path.</p>
 <script type="text/javascript">
+
 $(document).ready(function() {
     var geocoder = new google.maps.Geocoder(),
         data = {},
@@ -29,7 +30,13 @@ $(document).ready(function() {
             
             var map = new google.maps.Map(document.getElementById("map_canvas"), opts);
             var exports = data.exports.years['2010'];
+            var pivotPoint=null;
             var totalExports = exports['(Total)'].exports;
+            google.maps.event.addListener(map, 'rightclick', function(event){
+                pivotPoint=event.latLng;
+                alert('pivot');
+                //todo drop marker
+            });
             
             $.each(exports, function (country, val) {
                 var latlng = data.geo[country],
@@ -48,10 +55,18 @@ $(document).ready(function() {
                     path: path,
                     strokeColor: "#FF0000",
                     strokeOpacity: 1,
-                    strokeWeight: 0.1 + weight * 10
+                    strokeWeight: 0.1 + weight * 10,
+                    map: map
                   });
                 
-                exportPath.setMap(map);
+                google.maps.event.addListener(exportPath, 'click', function(event){
+                    if (pivotPoint!=null){
+                        var path = exportPath.getPath();
+                        var l = path.pop();
+                        path.push(pivotPoint);
+                        path.push(l);
+                    }
+                });
             });
         });
         
