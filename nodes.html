@@ -43,43 +43,18 @@ $(document).ready(function() {
 
             function drawFromNode(node,parent){
                var queue = data.nodes[node];
-               if (parent in queue){
+               queue[node]=-1; // yea bad.
+               if (queue.indexOf(parent)!=-1){
                 //draw
-                //var path = {nodeOf(parent), nodeOf(node)};
-
-
-               }
-               for (n in queue){
-                drawFromNode(n,node);
-               }
-               
-                alert('dfn');
-            }
-
-
-            drawFromNode(nodeOf(geo[0].geometry.location),-1);
-            
-            $.each(exports, function (country, val) {
-                var latlng = data.geo[country],
-                    glatlng,
-                    path = [];
-                
-                if (!latlng) return;
-
-                glatlng = new google.maps.LatLng(latlng.lat, latlng.lng);
-                path.push(geo[0].geometry.location);
-                path.push(glatlng);
-                
-                var weight = val.exports / totalExports;
-
-                var exportPath = new google.maps.Polyline({
+                var path = [geoOfNode(parent), geoOfNode(node)];
+                 var exportPath = new google.maps.Polyline({
                     path: path,
                     strokeColor: "#FF0000",
                     strokeOpacity: 1,
-                    strokeWeight: 0.1 + weight * 10,
+                    strokeWeight: 1,//0.1 + weight * 10,
                     map: map
                   });
-                
+
                 google.maps.event.addListener(exportPath, 'click', function(event){
                     if (pivotPoint!=null){
                         var path = exportPath.getPath();
@@ -88,7 +63,41 @@ $(document).ready(function() {
                         path.push(l);
                     }
                 });
-            });
+
+               }
+               while(queue.length != 0){
+                drawFromNode(queue.pop(), node);
+               }
+               
+            }
+
+
+            drawFromNode(nodeOf(geo[0].geometry.location),-1);
+
+
+            
+            //$.each(exports, function (country, val) {
+            //    var latlng = data.geo[country],
+            //        glatlng,
+            //        path = [];
+            //    
+            //    if (!latlng) return;
+
+            //    glatlng = new google.maps.LatLng(latlng.lat, latlng.lng);
+            //    path.push(geo[0].geometry.location);
+            //    path.push(glatlng);
+            //    
+            //    var weight = val.exports / totalExports;
+
+            //    var exportPath = new google.maps.Polyline({
+            //        path: path,
+            //        strokeColor: "#FF0000",
+            //        strokeOpacity: 1,
+            //        strokeWeight: 0.1 + weight * 10,
+            //        map: map
+            //      });
+            //    
+            //});
         });
         
     });
