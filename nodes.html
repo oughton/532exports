@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Export Vis</title>
+<script language="javascript" type="text/javascript" src="js/jquery-1.5.2.js"></script>
+<script language="javascript" type="text/javascript" src="js/exports.js"></script>
+<script language="javascript" type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+</head>
+<body>
+<p>Right click to set pivot point. Then click on a path.</p>
+<script type="text/javascript">
+
+$(document).ready(function() {
+    var geocoder = new google.maps.Geocoder(),
+        data = {},
+        source = "New Zealand";
+
+    $exports.buildJSON(source, function(d) {
+        data = d;
+        
+        var geocoder = new google.maps.Geocoder();
+        
+        geocoder.geocode({ address: source }, function(geo) {
+            var opts = {
+              zoom: 8,
+              center: geo[0].geometry.location,
+              mapTypeId: google.maps.MapTypeId.ROADMAP
+            }
+
+            var map = new google.maps.Map(document.getElementById("map_canvas"), opts);
+            var exports = data.exports.years['2010'];
+            var totalExports = exports['(Total)'].exports;
+            google.maps.event.addListener(map, 'rightclick', function(event){
+                pivotPoint=event.latLng;
+                alert('pivot');
+                //todo drop marker
+
+            });
+
+            //from source node.
+
+
+            function drawFromNode(node,parent){
+               var queue = data.nodes[node];
+               if (parent in queue){
+                //draw
+                //var path = {nodeOf(parent), nodeOf(node)};
+
+
+               }
+               for (n in queue){
+                drawFromNode(n,node);
+               }
+               
+                alert('dfn');
+            }
+
+
+            drawFromNode(nodeOf(geo[0].geometry.location),-1);
+            
+            $.each(exports, function (country, val) {
+                var latlng = data.geo[country],
+                    glatlng,
+                    path = [];
+                
+                if (!latlng) return;
+
+                glatlng = new google.maps.LatLng(latlng.lat, latlng.lng);
+                path.push(geo[0].geometry.location);
+                path.push(glatlng);
+                
+                var weight = val.exports / totalExports;
+
+                var exportPath = new google.maps.Polyline({
+                    path: path,
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 1,
+                    strokeWeight: 0.1 + weight * 10,
+                    map: map
+                  });
+                
+                google.maps.event.addListener(exportPath, 'click', function(event){
+                    if (pivotPoint!=null){
+                        var path = exportPath.getPath();
+                        var l = path.pop();
+                        path.push(pivotPoint);
+                        path.push(l);
+                    }
+                });
+            });
+        });
+        
+    });
+});
+
+function nodeOf(object){
+    //this accuracy might be bad.
+    return ""+object.lat()+"|"+object.lng();
+}
+function geoOfNode(node){
+    var latLng = node.split("|");
+    return new google.maps.LatLng(parseFloat(latLng[0]), parseFloat(latLng[1]));
+}
+
+</script>
+<div id="map_canvas" style="height:600px;width:1000px"></div> 
+</body>
+</html>
