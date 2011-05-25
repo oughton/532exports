@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Export Vis</title>
+<script language="javascript" type="text/javascript" src="js/jquery-1.5.2.js"></script>
+<script language="javascript" type="text/javascript" src="js/exports.js"></script>
+<script language="javascript" type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+</head>
+<body>
+<script type="text/javascript">
+
+$(document).ready(function() {
+    var filename = "dummy.json";
+
+    // example dummy data
+    var data = [
+        { "12.34543|213.123": [ "234.3242|24.657", "543.45|46.2345" ] },
+        { "45.34534|347.123": [ "384.3242|1234.76", "123.65|234.435" ] },
+        { "987.3467|435.5435": [ "1435.3242|50.7567", "543.45|45.565" ] }
+    ];
+
+    // save this data
+    //
+    // { nodes: data } is important because 'nodes' is the post variable
+    $.post('php/save.php?filename=' + filename, { nodes: data });
+
+
+    // read the data again, later on
+    $.getJSON('public/' + filename, function(loaded) {
+        console.log(loaded);
+    });
+});
+
+</script>
+<div id="map_canvas" style="height:600px;width:1000px"></div> 
+</body>
+</html>
+
