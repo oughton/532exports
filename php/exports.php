@@ -1,7 +1,7 @@
 <?php
 $row = 0;
 
-if (($handle = fopen("newzealand_exports.csv", "r")) !== FALSE) {
+if (($handle = fopen("../datasets/newzealand_exports.csv", "r")) !== FALSE) {
 
     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
         $num = count($data);
