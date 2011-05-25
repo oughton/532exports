@@ -1,7 +1,7 @@
 <?php
 if (($handle = fopen("../datasets/nodes.csv", "r"))!== FALSE){
     $count=0;
-    while(($data = fgetcsv($handle,1000,",")) !== FALSE){
+    while(($data = fgetcsv($handle,0,",")) !== FALSE){
         $count+=1;
         $dst = array();
         for ($i=1; $i < count($data); $i++){
