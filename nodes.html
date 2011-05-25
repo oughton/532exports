@@ -42,16 +42,18 @@ $(document).ready(function() {
 
 
             function drawFromNode(node,parent){
+                //returns the weight of what its done.
                var queue = data.nodes[node];
-               queue[node]=-1; // yea bad.
                if (queue.indexOf(parent)!=-1){
                 //draw
-                var path = [geoOfNode(parent), geoOfNode(node)];
+                 var name = nameOfNode(node,data.geo);
+                 //var name = data.geo.indexOf(geoOfNode(node)); //country name
+                 var weight = new Number(exports[name].exports) / totalExports;
                  var exportPath = new google.maps.Polyline({
-                    path: path,
+                    path: [geoOfNode(parent), geoOfNode(node)],
                     strokeColor: "#FF0000",
                     strokeOpacity: 1,
-                    strokeWeight: 1,//0.1 + weight * 10,
+                    strokeWeight: 0.1 + weight * 10,
                     map: map
                   });
 
@@ -61,8 +63,13 @@ $(document).ready(function() {
                         var l = path.pop();
                         path.push(pivotPoint);
                         path.push(l);
+                        //todo update node structure.
+                        //todo handle merges.
                     }
+
                 });
+
+                return weight;
 
                }
                while(queue.length != 0){
@@ -73,33 +80,7 @@ $(document).ready(function() {
 
 
             drawFromNode(nodeOf(geo[0].geometry.location),-1);
-
-
-            
-            //$.each(exports, function (country, val) {
-            //    var latlng = data.geo[country],
-            //        glatlng,
-            //        path = [];
-            //    
-            //    if (!latlng) return;
-
-            //    glatlng = new google.maps.LatLng(latlng.lat, latlng.lng);
-            //    path.push(geo[0].geometry.location);
-            //    path.push(glatlng);
-            //    
-            //    var weight = val.exports / totalExports;
-
-            //    var exportPath = new google.maps.Polyline({
-            //        path: path,
-            //        strokeColor: "#FF0000",
-            //        strokeOpacity: 1,
-            //        strokeWeight: 0.1 + weight * 10,
-            //        map: map
-            //      });
-            //    
-            //});
         });
-        
     });
 });
 
@@ -110,6 +91,15 @@ function nodeOf(object){
 function geoOfNode(node){
     var latLng = node.split("|");
     return new google.maps.LatLng(parseFloat(latLng[0]), parseFloat(latLng[1]));
+}
+function nameOfNode(node,contries){
+    var g = geoOfNode(node);
+    for ( c in contries){
+        if (contries[c].lat==g.lat()){
+            if (contries[c].lng == g.lng()) return c
+        }
+    }
+    return "Your on a boat Nigger!"
 }
 
 </script>
