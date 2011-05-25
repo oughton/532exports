@@ -1,5 +1,6 @@
-#nodes nodes represented as lat|lng
-#node -> node
+\\nodes have ugly names which can be split into their lat|lng
+\\node -> node
+\\todo json ish.
 -19.015438|29.154856999999993,-40.900557|174.88597100000004
 -13.133897|27.849332000000004,-40.900557|174.88597100000004
 -4.038333|21.758663999999953,-40.900557|174.88597100000004
