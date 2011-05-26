@@ -35,25 +35,34 @@ $(document).ready(function() {
                 pivotPoint=event.latLng;
                 alert('pivot');
                 //todo drop marker
-
             });
 
             //from source node.
-
+            var sourceNode = nodeOf(geo[0].geometry.location);
+            var topQueue = data.nodes[sourceNode];
+            while (topQueue.length != 0){
+                drawFromNode(topQueue.pop(), sourceNode);
+            }
 
             function drawFromNode(node,parent){
                 //returns the weight of what its done.
                var queue = data.nodes[node];
+               var pathExports =0;
                if (queue.indexOf(parent)!=-1){
-                //draw
-                 var name = nameOfNode(node,data.geo);
-                 //var name = data.geo.indexOf(geoOfNode(node)); //country name
-                 var weight = new Number(exports[name].exports) / totalExports;
-                 var exportPath = new google.maps.Polyline({
+                  //draw
+                    var name = nameOfNode(node,data.geo);
+                     pathExports = new Number(exports[name].exports);
+               } else {
+                   while(queue.length != 0){
+                        pathExports += drawFromNode(queue.pop(), node);
+                   }
+               }
+
+              var exportPath = new google.maps.Polyline({
                     path: [geoOfNode(parent), geoOfNode(node)],
                     strokeColor: "#FF0000",
                     strokeOpacity: 1,
-                    strokeWeight: 0.1 + weight * 10,
+                    strokeWeight: 0.1 + (pathExports / totalExports) * 10,
                     map: map
                   });
 
@@ -66,20 +75,9 @@ $(document).ready(function() {
                         //todo update node structure.
                         //todo handle merges.
                     }
-
-                });
-
-                return weight;
-
-               }
-               while(queue.length != 0){
-                drawFromNode(queue.pop(), node);
-               }
-               
-            }
-
-
-            drawFromNode(nodeOf(geo[0].geometry.location),-1);
+                  });
+               return pathExports;
+              }
         });
     });
 });
