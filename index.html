@@ -13,126 +13,131 @@
 
 $(document).ready(function() {
     var geocoder = new google.maps.Geocoder(),
-        source = "New Zealand";
-    data = {};
+        source = "New Zealand",
+        data = {},
+        locations;
 
     $exports.buildJSON(source, function(d) {
         data = d;
         build_geo_table(data);
 
         $.getJSON('public/nodesfile',function(loaded){
-            data.nodes = undefined;
-            data.nodes =loaded;
-        });
-        
-        var geocoder = new google.maps.Geocoder();
-        
-        geocoder.geocode({ address: source }, function(geo) {
-            var opts = {
-              zoom: 8,
-              center: geo[0].geometry.location,
-              mapTypeId: google.maps.MapTypeId.ROADMAP
-            }
+            data.nodes = loaded;
 
-            var map = new google.maps.Map(document.getElementById("map_canvas"), opts);
-            var exports = data.exports.years['2010'];
-            var totalExports = exports['(Total)'].exports;
-            google.maps.event.addListener(map, 'rightclick', function(event){
-                pivotPoint=event.latLng;
-                alert('pivot');
-                //todo drop marker
-            });
-
-            //from source node.
-            var sourceNode = nodeOf(geo[0].geometry.location);
-            var topQueue = data.nodes[sourceNode];
-            $.each(topQueue, function(index, value){
-                if (data.nodes[value].length >1){
-                    alert('draw nodes with children');
-                }
-                drawFromNode(value, sourceNode);
-            });
-
-            function drawFromNode(node,parent){
-                //returns the weight of what its done.
-                var queue = data.nodes[node];
-                var pathExports =0; //sum of value for weight.
-                if (node in locations) {
-                    //draw
-                    var name = locations[node];
-                    pathExports = new Number(exports[name].exports);
-                } else {
-                    $.each(queue, function(key,value){
-                        if (value != parent){
-                            console.log(key + " "+value);
-                            pathExports += drawFromNode(value, node);
-                        }
-                    });
+            var geocoder = new google.maps.Geocoder();
+            
+            geocoder.geocode({ address: source }, function(geo) {
+                var opts = {
+                  zoom: 8,
+                  center: geo[0].geometry.location,
+                  mapTypeId: google.maps.MapTypeId.ROADMAP
                 }
 
-                console.log('drawing '+parent+'=>'+node+"\t\t"+pathExports);
+                var map = new google.maps.Map(document.getElementById("map_canvas"), opts);
+                var exports = data.exports.years['2010'];
+                var totalExports = exports['(Total)'].exports;
+                google.maps.event.addListener(map, 'rightclick', function(event){
+                    pivotPoint=event.latLng;
+                    alert('pivot');
+                    //todo drop marker
+                });
 
-                 var exportPath = new google.maps.Polyline({
-                    path: [geoOfNode(parent), geoOfNode(node)],
-                    strokeColor: "#FF0000",
-                    strokeOpacity: 1,
-                    strokeWeight: 0.1 + (pathExports / totalExports) * 10,
-                    map: map
-                  });
+                //from source node.
+                var sourceNode = nodeOf(geo[0].geometry.location);
+                var topQueue = data.nodes[sourceNode];
+                $.each(topQueue, function(index, value){
+                    if (data.nodes[value].length >1){
+                        alert('draw nodes with children');
+                    }
+                    drawFromNode(value, sourceNode);
+                });
 
-                 google.maps.event.addListener(exportPath, 'click', function(event){
-                      if (pivotPoint!=null){
-                          var path = exportPath.getPath();
-                          var n1 = nodeOf(path.getArray()[0]);
-                          var n2 = nodeOf(path.getArray()[1]);
-                          //todo update node structure.
-                          //todo handle merges.
+                function drawFromNode(node,parent){
+                    //returns the weight of what its done.
+                    var queue = data.nodes[node];
+                    var pathExports =0; //sum of value for weight.
+                    if (node in locations) {
+                        //draw
+                        var name = locations[node];
+                        pathExports = new Number(exports[name].exports);
+                    } else {
+                        $.each(queue, function(key,value){
+                            if (value != parent){
+                                console.log(key + " "+value);
+                                pathExports += drawFromNode(value, node);
+                            }
+                        });
+                    }
 
-                          var pn = nodeOf(event.latLng);
+                    console.log('drawing '+parent+'=>'+node+"\t\t"+pathExports);
 
-                          var node2 = data.nodes[n2];
-                          var node1 = data.nodes[n1];
+                     var exportPath = new google.maps.Polyline({
+                        path: [geoOfNode(parent), geoOfNode(node)],
+                        strokeColor: "#FF0000",
+                        strokeOpacity: 1,
+                        strokeWeight: 0.1 + (pathExports / totalExports) * 10,
+                        map: map
+                      });
 
-                          var idx = node1.indexOf(n2);
-                          node1.splice(idx,1);
-                          node1.push(pn);
+                     google.maps.event.addListener(exportPath, 'click', function(event){
+                          if (pivotPoint!=null){
+                              var path = exportPath.getPath();
+                              var n1 = nodeOf(path.getArray()[0]);
+                              var n2 = nodeOf(path.getArray()[1]);
+                              //todo update node structure.
+                              //todo handle merges.
 
-                          idx = node2.indexOf(n1);
-                          node2.splice(idx,1);
-                          node2.push(pn);
+                              var pn = nodeOf(event.latLng);
 
-                          data.nodes[pn] = [n1,n2];
-                      }
-                 });
-                return pathExports;
-              }
+                              var node2 = data.nodes[n2];
+                              var node1 = data.nodes[n1];
+
+                              var idx = node1.indexOf(n2);
+                              node1.splice(idx,1);
+                              node1.push(pn);
+
+                              idx = node2.indexOf(n1);
+                              node2.splice(idx,1);
+                              node2.push(pn);
+
+                              data.nodes[pn] = [n1,n2];
+                          }
+                     });
+                    return pathExports;
+                  }
+            });
         });
+        
     });
+
+    function nodeOf(object){
+        //this accuracy might be bad.
+
+        if (typeof(object.lat) != "function" & typeof(object.lng) != "function"){
+            return object.lat+"|"+object.lng;
+        }
+        return ""+object.lat()+"|"+object.lng();
+    }
+
+    function geoOfNode(node){
+        var latLng = node.split("|");
+        return new google.maps.LatLng(parseFloat(latLng[0]), parseFloat(latLng[1]));
+    }
+
+    function build_geo_table(data){
+        locations = {};
+        for (g in data.geo){
+            locations[nodeOf(data.geo[g])] = g;
+        }
+    }
+
+    function save(){
+        var s_save = data.nodes;
+        $.post('php/save.php?filename=nodesfile', {nodes: data.nodes });
+        alert('save');
+    }
 });
 
-function nodeOf(object){
-    //this accuracy might be bad.
-
-    if (typeof(object.lat) != "function" & typeof(object.lng) != "function"){
-        return object.lat+"|"+object.lng;
-    }
-    return ""+object.lat()+"|"+object.lng();
-}
-function geoOfNode(node){
-    var latLng = node.split("|");
-    return new google.maps.LatLng(parseFloat(latLng[0]), parseFloat(latLng[1]));
-}
-function build_geo_table(data){
-    locations = {};  //yea global im bad.
-    for (g in data.geo){
-        locations[nodeOf(data.geo[g])] = g;
-    }
-}
-function save(){
-    var s_save = data.nodes;
-    $.post('php/save.php?filename=nodesfile', {nodes: data.nodes });
-    alert('save');
-}
 
 </script>
 <div id="map_canvas" style="height:600px;width:1000px"></div> 
