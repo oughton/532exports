@@ -13,15 +13,17 @@
 
 $(document).ready(function() {
     var geocoder = new google.maps.Geocoder(),
- //       data = {},
         source = "New Zealand";
-
     data = {};
-
 
     $exports.buildJSON(source, function(d) {
         data = d;
         build_geo_table(data);
+
+        $.getJSON('public/nodesfile',function(loaded){
+            data.nodes = undefined;
+            data.nodes =loaded;
+        });
         
         var geocoder = new google.maps.Geocoder();
         
@@ -44,9 +46,12 @@ $(document).ready(function() {
             //from source node.
             var sourceNode = nodeOf(geo[0].geometry.location);
             var topQueue = data.nodes[sourceNode];
-            while (topQueue.length != 0){
-                drawFromNode(topQueue.pop(), sourceNode);
-            }
+            $.each(topQueue, function(index, value){
+                if (data.nodes[value].length >1){
+                    alert('draw nodes with children');
+                }
+                drawFromNode(value, sourceNode);
+            });
 
             function drawFromNode(node,parent){
                 //returns the weight of what its done.
@@ -57,12 +62,17 @@ $(document).ready(function() {
                     var name = locations[node];
                     pathExports = new Number(exports[name].exports);
                 } else {
-                    while(queue.length != 0){
-                        pathExports += drawFromNode(queue.pop(), node);
-                    }
+                    $.each(queue, function(key,value){
+                        if (value != parent){
+                            console.log(key + " "+value);
+                            pathExports += drawFromNode(value, node);
+                        }
+                    });
                 }
 
-              var exportPath = new google.maps.Polyline({
+                console.log('drawing '+parent+'=>'+node+"\t\t"+pathExports);
+
+                 var exportPath = new google.maps.Polyline({
                     path: [geoOfNode(parent), geoOfNode(node)],
                     strokeColor: "#FF0000",
                     strokeOpacity: 1,
@@ -70,17 +80,31 @@ $(document).ready(function() {
                     map: map
                   });
 
-              google.maps.event.addListener(exportPath, 'click', function(event){
+                 google.maps.event.addListener(exportPath, 'click', function(event){
                       if (pivotPoint!=null){
                           var path = exportPath.getPath();
-                          var l = path.pop();
-                          path.push(pivotPoint);
-                          path.push(l);
+                          var n1 = nodeOf(path.getArray()[0]);
+                          var n2 = nodeOf(path.getArray()[1]);
                           //todo update node structure.
                           //todo handle merges.
+
+                          var pn = nodeOf(event.latLng);
+
+                          var node2 = data.nodes[n2];
+                          var node1 = data.nodes[n1];
+
+                          var idx = node1.indexOf(n2);
+                          node1.splice(idx,1);
+                          node1.push(pn);
+
+                          idx = node2.indexOf(n1);
+                          node2.splice(idx,1);
+                          node2.push(pn);
+
+                          data.nodes[pn] = [n1,n2];
                       }
                  });
-              return pathExports;
+                return pathExports;
               }
         });
     });
@@ -98,15 +122,20 @@ function geoOfNode(node){
     var latLng = node.split("|");
     return new google.maps.LatLng(parseFloat(latLng[0]), parseFloat(latLng[1]));
 }
-
 function build_geo_table(data){
     locations = {};  //yea global im bad.
     for (g in data.geo){
         locations[nodeOf(data.geo[g])] = g;
     }
 }
+function save(){
+    var s_save = data.nodes;
+    $.post('php/save.php?filename=nodesfile', {nodes: data.nodes });
+    alert('save');
+}
 
 </script>
 <div id="map_canvas" style="height:600px;width:1000px"></div> 
+<input type="button" value="save" onclick="save();" />
 </body>
 </html>
