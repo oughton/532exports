@@ -141,11 +141,26 @@ $(document).ready(function() {
         $.post('php/save.php?filename=nodesfile', {nodes: data.nodes });
         alert('save');
     }
+    // add handler to save button
+    $('#btnDebug').click(function() {
+        var pn = "-40.658953578756076|174.1867184029761"
+        var au_off_nz = false;
+        if ('-25.274398|133.77513599999997' in data.nodes['-40.900557|174.88597100000004']) au_off_nz =true;
+        console.log(au_off_nz); // should be false.
+        var piv_off_nz = false;
+        if (pn in data.nodes['-40.900557|174.88597100000004']) piv_off_nz = true;
+        console.log(piv_off_nz); // should be true
+
+        console.log(data.nodes[pn]); // should have au & nz
+        console.log(data.nodes['-25.274398|133.77513599999997']); // should have pivot node.
+    });
+
 });
 
 
 </script>
 <div id="map_canvas" style="height:600px;width:1000px"></div> 
 <input id="btnSave" type="button" value="save" />
+<input id="btnDebug" type="button" value="debug" />
 </body>
 </html>
