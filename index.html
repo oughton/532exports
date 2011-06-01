@@ -17,6 +17,11 @@ $(document).ready(function() {
         data = {},
         locations;
 
+    // add handler to save button
+    $('#btnSave').click(function() {
+        save();
+    });
+
     $exports.buildJSON(source, function(d) {
         data = d;
         build_geo_table(data);
@@ -141,6 +146,6 @@ $(document).ready(function() {
 
 </script>
 <div id="map_canvas" style="height:600px;width:1000px"></div> 
-<input type="button" value="save" onclick="save();" />
+<input id="btnSave" type="button" value="save" />
 </body>
 </html>
