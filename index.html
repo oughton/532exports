@@ -194,15 +194,24 @@ $(document).ready(function() {
         
         //lat is Y, lng is X
 
-        var A1 = p2.lat() -p1.lat();
-        var B1 = p2.lng() -p1.lng();
-        var C1 = A1*p1.lng()+ B1*p1.lat();
-        
-        var A2 = p4.lat() -p3.lat();
-        var B2 = p4.lng() -p3.lng();
-        var C2 = A2*p3.lng()+ B2*p3.lat();
-        
-        var det = A1*B2 - A2*B2;
+        var x1 = p1.lng();
+        var y1 = p1.lat();
+        var x2 = p2.lng();
+        var y2 = p2.lat();
+        var x3 = p3.lng();
+        var y3 = p3.lat();
+        var x4 = p4.lng();
+        var y4 = p4.lat();
+
+        var A1 = y2-y1;
+        var B1 = x1-x2;
+        var C1 = (A1*x1) + (B1*y1);
+
+        var A2 = y4-y3;
+        var B2 = x3-x4;
+        var C2 = (A2*x3) + (B2*y3);
+
+        var det = A1*B2 - A2*B1;
         
         if (det==0){
             //lines are parallel.
@@ -211,24 +220,19 @@ $(document).ready(function() {
         } else {
             var x = (B2*C1 - B1*C2) / det;
             var y = (A1*C2 - A2*C1) / det;
-            
-            var minX = p1.lng();
-            var maxX = p2.lng();
-            if (p2.lng() < minX) { minX =p2.lng(); maxX=p1.lng();}
-            var minY = p1.lat(); 
-            var maxY = p2.lat(); 
-            if (p2.lat() < minY) { minY=p2.lat(); maxY=p1.lat();}
-            
+
+            var minX = Math.min(x1,x2);
+            var maxX = Math.max(x1,x2);
+            var minX = Math.min(y1,y2);
+            var maxX = Math.max(y1,y2);
+                        
             if (minX <= x && x <= maxX && minY<= y && y<= maxY){
-                alert('xMatches');
+                console.log("match1");
                 
-                minX = p3.lng();
-                maxX = p4.lng();
-                if (p4.lng() < minX) { minX =p4.lng(); maxX=p3.lng();}
-                minY = p3.lat();
-                maxY = p4.lat();
-                if (p4.lat() < minY) { minY=p4.lat(); maxY=p3.lat();}
-                
+                minX = Math.min(x3,x4);
+                maxX = Math.max(x3,x4);
+                minX = Math.min(y3,y4);
+                maxX = Math.max(y3,y4);
                 
                 if (minX <= x && x <= maxX && minY<= y && y<= maxY){
                     //alert('intersect');
