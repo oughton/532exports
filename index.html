@@ -52,6 +52,11 @@ $(document).ready(function() {
 
                         traverse_nodes(nodeOf(geo[0].geometry.location),null, data.nodes,function(n1,n2){
                             console.log(intersect(multiP1,multiP2,geoOfNode(n1),geoOfNode(n2)));
+                            if (intersect(multiP1,multiP2,geoOfNode(n1),geoOfNode(n2))){
+                                console.log(n2 + "  " + n1);
+                                console.log(locations[n1]);
+                            }
+
                         });
 
                     } else {
@@ -211,11 +216,10 @@ $(document).ready(function() {
         var B2 = x3-x4;
         var C2 = (A2*x3) + (B2*y3);
 
-        var det = A1*B2 - A2*B1;
+        var det = (A1*B2) - (A2*B1);
         
         if (det==0){
             //lines are parallel.
-            alert('plines');
             return false; // could be same line
         } else {
             var x = (B2*C1 - B1*C2) / det;
@@ -223,23 +227,20 @@ $(document).ready(function() {
 
             var minX = Math.min(x1,x2);
             var maxX = Math.max(x1,x2);
-            var minX = Math.min(y1,y2);
-            var maxX = Math.max(y1,y2);
+            var minY = Math.min(y1,y2);
+            var maxY = Math.max(y1,y2);
                         
             if (minX <= x && x <= maxX && minY<= y && y<= maxY){
-                console.log("match1");
-                
                 minX = Math.min(x3,x4);
                 maxX = Math.max(x3,x4);
-                minX = Math.min(y3,y4);
-                maxX = Math.max(y3,y4);
+                minY = Math.min(y3,y4);
+                maxY = Math.max(y3,y4);
                 
                 if (minX <= x && x <= maxX && minY<= y && y<= maxY){
-                    //alert('intersect');
                     return true;
-                }   
+                }
             }   
-        }   
+        }
         return false;
     } 
 
