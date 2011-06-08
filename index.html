@@ -143,6 +143,7 @@ $(document).ready(function() {
         data.nodes[node].splice(data.nodes[node].indexOf(parent),1); //remove parent from node.
         data.nodes[parent].splice(data.nodes[parent].indexOf(node),1); // remove node from parent;
     }
+
     function addMarker(map, latlng) {
         var m = new google.maps.Marker({
             position: latlng, 
@@ -165,6 +166,54 @@ $(document).ready(function() {
         });
 
         return m;
+    }
+
+    function mergeNodes(n1, n2) {
+        var pivot, nodes = [], parent, n2i;
+
+        // delete n2
+        $.each(pivotPoints, function(index, p) {
+            if (geoOfNode(n2).equals(p.getPosition())) {
+                pivot = p;
+            }
+        });
+
+        if (!pivot) {
+            console.log('failed to find pivot');
+            return;
+        }
+        
+        // remove the marker
+        pivot.setMap(null);
+        pivotPoints.splice(pivotPoints.indexOf(pivot), 1);
+
+        // if any of n2s children point back to n2
+        $.each(data.nodes[n2], function(index, n) {
+            // no link backs to n2 - so add to kept node array
+            if (n != n2) {
+                nodes.push(n);
+                
+            // link back to n2 - so add to link back to n1 instead
+            } else {
+                data.nodes[n].push(n1);
+                // TODO: what is the node already links back to n1?
+            }
+        });
+
+        // make n1 point to all of np2s children
+        data.nodes[n1].concat(nodes);
+
+        // get n2's parent
+        parent = data.nodes[n2][0];
+
+        // remove n2 from its parent
+        $.each(data.nodes[parent], function(index, n) {
+            if (n == n2) {
+                n2i = index;
+                return false;
+            }
+        });
+        data.nodes[parent].splice(n2i, 1);
     }
 
     function nodeOf(object){
