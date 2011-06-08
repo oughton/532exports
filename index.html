@@ -55,8 +55,9 @@ $(document).ready(function() {
                             if (intersect(multiP1,multiP2,geoOfNode(n1),geoOfNode(n2))){
                                 console.log(n2 + "  " + n1);
                                 console.log(locations[n1]);
+                                // add to pivot node
+                                // remove from parent.
                             }
-
                         });
 
                     } else {
@@ -106,26 +107,12 @@ $(document).ready(function() {
 
                      google.maps.event.addListener(exportPath, 'click', function(event){
                           if (pivotPoint!=null){
+                              //Making a pivot
                               var path = exportPath.getPath();
                               var n1 = nodeOf(path.getArray()[0]);
                               var n2 = nodeOf(path.getArray()[1]);
-                              //todo update node structure.
-                              //todo handle merges.
-                              
-                              var pn = nodeOf(pivotPoint.getPosition());
 
-                              var node2 = data.nodes[n2];
-                              var node1 = data.nodes[n1];
-
-                              var idx = node1.indexOf(n2);
-                              node1.splice(idx,1);
-                              node1.push(pn);
-
-                              idx = node2.indexOf(n1);
-                              node2.splice(idx,1);
-                              node2.push(pn);
-
-                              data.nodes[pn] = [n1,n2];
+                              addToPivot(nodeOf(pivotPoint.getPosition()),n2,n1);
                           }
                      });
                     return pathExports;
@@ -135,6 +122,19 @@ $(document).ready(function() {
         
     });
 
+    function addToPivot(pivot, node, parent){
+        //create pivot if it doesnt exist.
+        // the pivots parent.
+        if (!(pivot in data.nodes)){
+            data.nodes[pivot] = [parent]; // create
+            data.nodes[parent].push(pivot); // give parent
+        }
+        data.nodes[node].push(pivot); // add pivot to node as new parent.
+        data.nodes[pivot].push(node); // add pivot to node
+
+        data.nodes[node].splice(data.nodes[node].indexOf(parent),1); //remove parent from node.
+        data.nodes[parent].splice(data.nodes[parent].indexOf(node),1); // remove node from parent;
+    }
     function addMarker(map, latlng) {
         var m = new google.maps.Marker({
             position: latlng, 
