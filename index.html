@@ -51,12 +51,11 @@ $(document).ready(function() {
                         alert('multi point 2');
 
                         traverse_nodes(nodeOf(geo[0].geometry.location),null, data.nodes,function(n1,n2){
-                            console.log(intersect(multiP1,multiP2,geoOfNode(n1),geoOfNode(n2)));
-                            if (intersect(multiP1,multiP2,geoOfNode(n1),geoOfNode(n2))){
-                                console.log(n2 + "  " + n1);
-                                console.log(locations[n1]);
-                                // add to pivot node
-                                // remove from parent.
+                            if (pivotPoint != null){
+                                if (intersect(multiP1,multiP2,geoOfNode(n1),geoOfNode(n2))){
+                                    console.log(n2 + "  " + n1);
+                                    addToPivot(nodeOf(pivotPoint.getPosition()),n1,n2);
+                                }
                             }
                         });
 
