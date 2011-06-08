@@ -44,6 +44,22 @@ $(document).ready(function() {
                     
                 });
 
+                var multiP1,multiP2;
+                google.maps.event.addListener(map, 'click', function(event){
+                    if (multiP1 != null){
+                        var multiP2 = event.latLng;
+                        alert('multi point 2');
+
+                        traverse_nodes(nodeOf(geo[0].geometry.location),null, data.nodes,function(n1,n2){
+                            console.log(intersect(multiP1,multiP2,geoOfNode(n1),geoOfNode(n2)));
+                        });
+
+                    } else {
+                        multiP1 = event.latLng;
+                        alert('multi point 1');
+                    }
+                });
+
                 //from source node.
                 var sourceNode = nodeOf(geo[0].geometry.location);
                 var topQueue = data.nodes[sourceNode];
@@ -159,6 +175,71 @@ $(document).ready(function() {
         }
     }
 
+    function traverse_nodes(node, parent, nodes, callback){
+        var queue = data.nodes[node];
+        if (parent != null) {callback(node,parent);}
+        $.each(queue, function (key,value){
+            if (value != parent){
+                traverse_nodes(value,node,nodes,callback);
+            }
+        });
+    }
+
+    function intersect(p1,p2,p3,p4){
+        // why cant i find a library with this !!!!
+        // http://www.topcoder.com/tc?module=Static&d1=tutorials&d2=geometry2
+        //does line p1-p2 intersect p3-p4
+
+        //Shit, the coordinates in the map wrap backward and stuff.,,, na surely this will work
+        
+        //lat is Y, lng is X
+
+        var A1 = p2.lat() -p1.lat();
+        var B1 = p2.lng() -p1.lng();
+        var C1 = A1*p1.lng()+ B1*p1.lat();
+        
+        var A2 = p4.lat() -p3.lat();
+        var B2 = p4.lng() -p3.lng();
+        var C2 = A2*p3.lng()+ B2*p3.lat();
+        
+        var det = A1*B2 - A2*B2;
+        
+        if (det==0){
+            //lines are parallel.
+            alert('plines');
+            return false; // could be same line
+        } else {
+            var x = (B2*C1 - B1*C2) / det;
+            var y = (A1*C2 - A2*C1) / det;
+            
+            var minX = p1.lng();
+            var maxX = p2.lng();
+            if (p2.lng() < minX) { minX =p2.lng(); maxX=p1.lng();}
+            var minY = p1.lat(); 
+            var maxY = p2.lat(); 
+            if (p2.lat() < minY) { minY=p2.lat(); maxY=p1.lat();}
+            
+            if (minX <= x && x <= maxX && minY<= y && y<= maxY){
+                alert('xMatches');
+                
+                minX = p3.lng();
+                maxX = p4.lng();
+                if (p4.lng() < minX) { minX =p4.lng(); maxX=p3.lng();}
+                minY = p3.lat();
+                maxY = p4.lat();
+                if (p4.lat() < minY) { minY=p4.lat(); maxY=p3.lat();}
+                
+                
+                if (minX <= x && x <= maxX && minY<= y && y<= maxY){
+                    //alert('intersect');
+                    return true;
+                }   
+            }   
+        }   
+        return false;
+    } 
+
+
     function save(){
         var s_save = data.nodes;
         $.post('php/save.php?filename=nodesfile', {nodes: data.nodes });
@@ -167,16 +248,6 @@ $(document).ready(function() {
 
     // add handler to debug button
     $('#btnDebug').click(function() {
-        var pn = "-40.658953578756076|174.1867184029761"
-        var au_off_nz = false;
-        if ('-25.274398|133.77513599999997' in data.nodes['-40.900557|174.88597100000004']) au_off_nz =true;
-        console.log(au_off_nz); // should be false.
-        var piv_off_nz = false;
-        if (pn in data.nodes['-40.900557|174.88597100000004']) piv_off_nz = true;
-        console.log(piv_off_nz); // should be true
-
-        console.log(data.nodes[pn]); // should have au & nz
-        console.log(data.nodes['-25.274398|133.77513599999997']); // should have pivot node.
     });
 
     // add handler to save button
