@@ -49,13 +49,21 @@ $(document).ready(function() {
                     if (multiP1 != null){
                         var multiP2 = event.latLng;
                         alert('multi point 2');
+                        console.log('selection line',nodeOf(multiP1),nodeOf(multiP2));
 
+                        var tomove = Array();
                         traverse_nodes(nodeOf(geo[0].geometry.location),null, data.nodes,function(n1,n2){
+                            // Dont change the data structure while crawling it!!! can make things vanish.
                             if (pivotPoint != null){
+                                if (n2==undefined | n1 == undefined) console.log(n2,n1);
                                 if (intersect(multiP1,multiP2,geoOfNode(n1),geoOfNode(n2))){
-                                    addToPivot(nodeOf(pivotPoint.getPosition()),n1,n2);
+                                    tomove.push([n1,n2]);
+                                    console.log('intersect',n2, n1, locations[n1]);
                                 }
                             }
+                        });
+                        $.each(tomove, function(key,value){
+                            addToPivot(nodeOf(pivotPoint.getPosition()),value[0],value[1]);
                         });
 
                     } else {
@@ -91,7 +99,7 @@ $(document).ready(function() {
                         path: [geoOfNode(parent), geoOfNode(node)],
                         strokeColor: "#FF0000",
                         strokeOpacity: 1,
-                        strokeWeight: 0.1 + (pathExports / totalExports) * 10,
+                        strokeWeight: 0.1 + (pathExports / totalExports) * 40,
                         map: map
                     });
 
@@ -118,6 +126,11 @@ $(document).ready(function() {
     });
 
     function addToPivot(pivot, node, parent){
+        if(node == undefined | pivot == undefined | parent == undefined){
+            //this could introduce errors in the data structure.
+            console.log('undefined in addToPivot',node,pivot,parent);
+            return;
+        }
         //create pivot if it doesnt exist.
         // the pivots parent.
         if (!(pivot in data.nodes)){
@@ -239,6 +252,11 @@ $(document).ready(function() {
 
     // add handler to debug button
     $('#btnDebug').click(function() {
+        traverse_nodes("-40.900557|174.88597100000004", null, data.nodes, function(n1,n2){
+            if (n1==undefined | n2 == undefined){
+                console.log('undifined',n1,n2);
+            }
+        });
     });
 
     // add handler to save button
