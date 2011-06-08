@@ -122,12 +122,12 @@ $(document).ready(function() {
         });
 
         google.maps.event.addListener(m, 'click', function(){
-            if (marker.getAnimation() != null) {
-                marker.setAnimation(null);
+            if (m.getAnimation() != null) {
+                m.setAnimation(null);
             } else {
-                marker.setAnimation(google.maps.Animation.BOUNCE);
+                m.setAnimation(google.maps.Animation.BOUNCE);
                 setTimeout(function() {
-                    marker.setAnimation(null);
+                    m.setAnimation(null);
                 }, 1000);
             }
         });
