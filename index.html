@@ -16,7 +16,8 @@ $(document).ready(function() {
         source = "New Zealand",
         data = {},
         locations,
-        pivotPoint = null;
+        pivotPoint = null,
+        debug = true;
 
     $exports.buildJSON(source, function(d) {
         data = d;
@@ -120,7 +121,9 @@ $(document).ready(function() {
             animation: google.maps.Animation.DROP,
             title: 'pivot'
         });
-
+        
+        m.setVisible(debug);
+        
         google.maps.event.addListener(m, 'click', function(){
             if (m.getAnimation() != null) {
                 m.setAnimation(null);
