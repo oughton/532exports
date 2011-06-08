@@ -53,7 +53,6 @@ $(document).ready(function() {
                         traverse_nodes(nodeOf(geo[0].geometry.location),null, data.nodes,function(n1,n2){
                             if (pivotPoint != null){
                                 if (intersect(multiP1,multiP2,geoOfNode(n1),geoOfNode(n2))){
-                                    console.log(n2 + "  " + n1);
                                     addToPivot(nodeOf(pivotPoint.getPosition()),n1,n2);
                                 }
                             }
@@ -83,13 +82,10 @@ $(document).ready(function() {
                     } else {
                         $.each(queue, function(key,value){
                             if (value != parent){
-                                console.log(key + " "+value);
                                 pathExports += drawFromNode(value, node);
                             }
                         });
                     }
-
-                    console.log('drawing '+parent+'=>'+node+"\t\t"+pathExports);
 
                     var exportPath = new google.maps.Polyline({
                         path: [geoOfNode(parent), geoOfNode(node)],
@@ -192,7 +188,7 @@ $(document).ready(function() {
     function intersect(p1,p2,p3,p4){
         // why cant i find a library with this !!!!
         // http://www.topcoder.com/tc?module=Static&d1=tutorials&d2=geometry2
-        //does line p1-p2 intersect p3-p4
+        // does line p1-p2 intersect p3-p4
 
         //Shit, the coordinates in the map wrap backward and stuff.,,, na surely this will work
         
@@ -224,21 +220,12 @@ $(document).ready(function() {
             var x = (B2*C1 - B1*C2) / det;
             var y = (A1*C2 - A2*C1) / det;
 
-            var minX = Math.min(x1,x2);
-            var maxX = Math.max(x1,x2);
-            var minY = Math.min(y1,y2);
-            var maxY = Math.max(y1,y2);
-                        
-            if (minX <= x && x <= maxX && minY<= y && y<= maxY){
-                minX = Math.min(x3,x4);
-                maxX = Math.max(x3,x4);
-                minY = Math.min(y3,y4);
-                maxY = Math.max(y3,y4);
-                
-                if (minX <= x && x <= maxX && minY<= y && y<= maxY){
+            if (Math.min(x1,x2) <= x && x <= Math.max(x1,x2) && 
+                Math.min(y1,y2) <= y && y <= Math.max(y1,y2) &&
+                Math.min(x3,x4) <= x && x <= Math.max(x3,x4) && 
+                Math.min(y3,y4) <= y && y <= Math.max(y3,y4)){
                     return true;
                 }
-            }   
         }
         return false;
     } 
