@@ -79,7 +79,7 @@ $(document).ready(function() {
                     });
 
                     // drop markers again
-                    if (!locations[geoOfNode(node)]) {
+                    if (!locations[node]) {
                         addMarker(map, geoOfNode(node));
                     }
 
