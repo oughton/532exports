@@ -16,7 +16,7 @@ $(document).ready(function() {
         source = "New Zealand",
         data = {},
         locations,
-        marker = null;
+        pivotPoint = null;
 
     $exports.buildJSON(source, function(d) {
         data = d;
@@ -38,10 +38,8 @@ $(document).ready(function() {
                 var exports = data.exports.years['2010'];
                 var totalExports = exports['(Total)'].exports;
                 google.maps.event.addListener(map, 'rightclick', function(event){
-                    pivotPoint=event.latLng;
-                    
                     // drop marker
-                    addMarker(map, event.latLng); 
+                    pivotPoint = addMarker(map, event.latLng); 
                     
                 });
 
@@ -49,11 +47,6 @@ $(document).ready(function() {
                 var sourceNode = nodeOf(geo[0].geometry.location);
                 var topQueue = data.nodes[sourceNode];
                 $.each(topQueue, function(index, value){
-                    if (data.nodes[value].length >1){
-                        //alert('draw nodes with children');
-                    } else {
-                        return;
-                    }
                     drawFromNode(value, sourceNode);
                 });
 
@@ -91,8 +84,8 @@ $(document).ready(function() {
                               var n2 = nodeOf(path.getArray()[1]);
                               //todo update node structure.
                               //todo handle merges.
-
-                              var pn = nodeOf(pivotPoint);
+                              
+                              var pn = nodeOf(pivotPoint.getPosition());
 
                               var node2 = data.nodes[n2];
                               var node1 = data.nodes[n1];
@@ -123,11 +116,7 @@ $(document).ready(function() {
             title: 'pivot'
         });
 
-        marker = m;
-
         google.maps.event.addListener(m, 'click', function(){
-            marker = m;
-            
             if (marker.getAnimation() != null) {
                 marker.setAnimation(null);
             } else {
@@ -137,6 +126,8 @@ $(document).ready(function() {
                 }, 1000);
             }
         });
+
+        return m;
     }
 
     function nodeOf(object){
