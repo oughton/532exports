@@ -69,13 +69,18 @@ $(document).ready(function() {
 
                     console.log('drawing '+parent+'=>'+node+"\t\t"+pathExports);
 
-                     var exportPath = new google.maps.Polyline({
+                    var exportPath = new google.maps.Polyline({
                         path: [geoOfNode(parent), geoOfNode(node)],
                         strokeColor: "#FF0000",
                         strokeOpacity: 1,
                         strokeWeight: 0.1 + (pathExports / totalExports) * 10,
                         map: map
-                      });
+                    });
+
+                    // drop markers again
+                    if (!locations[geoOfNode(node)]) {
+                        addMarker(map, geoOfNode(node));
+                    }
 
                      google.maps.event.addListener(exportPath, 'click', function(event){
                           if (pivotPoint!=null){
