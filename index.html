@@ -15,12 +15,8 @@ $(document).ready(function() {
     var geocoder = new google.maps.Geocoder(),
         source = "New Zealand",
         data = {},
-        locations;
-
-    // add handler to save button
-    $('#btnSave').click(function() {
-        save();
-    });
+        locations,
+        marker = null;
 
     $exports.buildJSON(source, function(d) {
         data = d;
@@ -43,8 +39,10 @@ $(document).ready(function() {
                 var totalExports = exports['(Total)'].exports;
                 google.maps.event.addListener(map, 'rightclick', function(event){
                     pivotPoint=event.latLng;
-                    alert('pivot');
-                    //todo drop marker
+                    
+                    // drop marker
+                    addMarker(map, event.latLng); 
+                    
                 });
 
                 //from source node.
@@ -52,7 +50,9 @@ $(document).ready(function() {
                 var topQueue = data.nodes[sourceNode];
                 $.each(topQueue, function(index, value){
                     if (data.nodes[value].length >1){
-                        alert('draw nodes with children');
+                        //alert('draw nodes with children');
+                    } else {
+                        return;
                     }
                     drawFromNode(value, sourceNode);
                 });
@@ -115,6 +115,30 @@ $(document).ready(function() {
         
     });
 
+    function addMarker(map, latlng) {
+        var m = new google.maps.Marker({
+            position: latlng, 
+            map: map,
+            animation: google.maps.Animation.DROP,
+            title: 'pivot'
+        });
+
+        marker = m;
+
+        google.maps.event.addListener(m, 'click', function(){
+            marker = m;
+            
+            if (marker.getAnimation() != null) {
+                marker.setAnimation(null);
+            } else {
+                marker.setAnimation(google.maps.Animation.BOUNCE);
+                setTimeout(function() {
+                    marker.setAnimation(null);
+                }, 1000);
+            }
+        });
+    }
+
     function nodeOf(object){
         //this accuracy might be bad.
 
@@ -141,7 +165,8 @@ $(document).ready(function() {
         $.post('php/save.php?filename=nodesfile', {nodes: data.nodes });
         alert('save');
     }
-    // add handler to save button
+
+    // add handler to debug button
     $('#btnDebug').click(function() {
         var pn = "-40.658953578756076|174.1867184029761"
         var au_off_nz = false;
@@ -155,8 +180,11 @@ $(document).ready(function() {
         console.log(data.nodes['-25.274398|133.77513599999997']); // should have pivot node.
     });
 
+    // add handler to save button
+    $('#btnSave').click(function() {
+        save();
+    });
 });
-
 
 </script>
 <div id="map_canvas" style="height:600px;width:1000px"></div> 
