@@ -14,9 +14,15 @@
 $(document).ready(function() {
     var geocoder = new google.maps.Geocoder(),
         source = "New Zealand",
+        sourceGeo,
+        map,
+        exports,
+        totalExports,
         data = {},
         locations,
         pivotPoint = null,
+        pivotPoints = [],
+        polyLines = [],
         debug = true;
 
     $exports.buildJSON(source, function(d) {
@@ -29,15 +35,17 @@ $(document).ready(function() {
             var geocoder = new google.maps.Geocoder();
             
             geocoder.geocode({ address: source }, function(geo) {
+                sourceGeo = geo[0].geometry.location;
+
                 var opts = {
                   zoom: 8,
                   center: geo[0].geometry.location,
                   mapTypeId: google.maps.MapTypeId.ROADMAP
                 }
 
-                var map = new google.maps.Map(document.getElementById("map_canvas"), opts);
-                var exports = data.exports.years['2010'];
-                var totalExports = exports['(Total)'].exports;
+                map = new google.maps.Map(document.getElementById("map_canvas"), opts);
+                exports = data.exports.years['2010'];
+                totalExports = exports['(Total)'].exports;
                 google.maps.event.addListener(map, 'rightclick', function(event){
                     // drop marker
                     pivotPoint = addMarker(map, event.latLng); 
@@ -66,64 +74,72 @@ $(document).ready(function() {
                             addToPivot(nodeOf(pivotPoint.getPosition()),value[0],value[1]);
                         });
 
+
+                        redraw();
                     } else {
                         multiP1 = event.latLng;
                         alert('multi point 1');
                     }
                 });
 
-                //from source node.
-                var sourceNode = nodeOf(geo[0].geometry.location);
-                var topQueue = data.nodes[sourceNode];
-                $.each(topQueue, function(index, value){
-                    drawFromNode(value, sourceNode);
-                });
-
-                function drawFromNode(node,parent){
-                    //returns the weight of what its done.
-                    var queue = data.nodes[node];
-                    var pathExports =0; //sum of value for weight.
-                    if (node in locations) {
-                        //draw
-                        var name = locations[node];
-                        pathExports = new Number(exports[name].exports);
-                    } else {
-                        $.each(queue, function(key,value){
-                            if (value != parent){
-                                pathExports += drawFromNode(value, node);
-                            }
-                        });
-                    }
-
-                    var exportPath = new google.maps.Polyline({
-                        path: [geoOfNode(parent), geoOfNode(node)],
-                        strokeColor: "#FF0000",
-                        strokeOpacity: 1,
-                        strokeWeight: 0.1 + (pathExports / totalExports) * 40,
-                        map: map
-                    });
-
-                    // drop markers again
-                    if (!locations[node]) {
-                        addMarker(map, geoOfNode(node));
-                    }
-
-                     google.maps.event.addListener(exportPath, 'click', function(event){
-                          if (pivotPoint!=null){
-                              //Making a pivot
-                              var path = exportPath.getPath();
-                              var n1 = nodeOf(path.getArray()[0]);
-                              var n2 = nodeOf(path.getArray()[1]);
-
-                              addToPivot(nodeOf(pivotPoint.getPosition()),n2,n1);
-                          }
-                     });
-                    return pathExports;
-                  }
+                draw();
             });
         });
         
     });
+
+    function draw() {
+        //from source node.
+        var sourceNode = nodeOf(sourceGeo);
+        var topQueue = data.nodes[sourceNode];
+        $.each(topQueue, function(index, value){
+            drawFromNode(value, sourceNode);
+        });
+
+        function drawFromNode(node,parent){
+            //returns the weight of what its done.
+            var queue = data.nodes[node];
+            var pathExports =0; //sum of value for weight.
+            if (node in locations) {
+                //draw
+                var name = locations[node];
+                pathExports = new Number(exports[name].exports);
+            } else {
+                $.each(queue, function(key,value){
+                    if (value != parent){
+                        pathExports += drawFromNode(value, node);
+                    }
+                });
+            }
+
+            var exportPath = new google.maps.Polyline({
+                path: [geoOfNode(parent), geoOfNode(node)],
+                strokeColor: "#FF0000",
+                strokeOpacity: 1,
+                strokeWeight: 0.1 + (pathExports / totalExports) * 40,
+                map: map
+            });
+
+            polyLines.push(exportPath);
+
+            // drop markers again
+            if (!locations[node]) {
+                addMarker(map, geoOfNode(node));
+            }
+
+             google.maps.event.addListener(exportPath, 'click', function(event){
+                  if (pivotPoint!=null){
+                      //Making a pivot
+                      var path = exportPath.getPath();
+                      var n1 = nodeOf(path.getArray()[0]);
+                      var n2 = nodeOf(path.getArray()[1]);
+
+                      addToPivot(nodeOf(pivotPoint.getPosition()),n2,n1);
+                  }
+             });
+            return pathExports;
+          }
+    }
 
     function addToPivot(pivot, node, parent){
         if(node == undefined | pivot == undefined | parent == undefined){
@@ -153,6 +169,7 @@ $(document).ready(function() {
         });
         
         m.setVisible(debug);
+        pivotPoints.push(m);
         
         google.maps.event.addListener(m, 'click', function(){
             if (m.getAnimation() != null) {
@@ -299,6 +316,25 @@ $(document).ready(function() {
         alert('save');
     }
 
+    function clear() {
+        $.each(polyLines, function(index, line) {
+            line.setMap(null);
+        });
+        
+        $.each(pivotPoints, function(index, pivot) {
+            pivot.setMap(null);
+        });
+
+        pivotPoint = null;
+        polyLines = [];
+        pivotPoints = [];
+    }
+
+    function redraw() {
+        clear();
+        draw(); 
+    }
+
     // add handler to debug button
     $('#btnDebug').click(function() {
         traverse_nodes("-40.900557|174.88597100000004", null, data.nodes, function(n1,n2){
@@ -312,11 +348,17 @@ $(document).ready(function() {
     $('#btnSave').click(function() {
         save();
     });
+    
+    // add handler to redraw button
+    $('#btnRedraw').click(function() {
+        redraw();
+    });
 });
 
 </script>
 <div id="map_canvas" style="height:600px;width:1000px"></div> 
 <input id="btnSave" type="button" value="save" />
 <input id="btnDebug" type="button" value="debug" />
+<input id="btnRedraw" type="button" value="redraw" />
 </body>
 </html>
