@@ -11,7 +11,6 @@
 <script language="javascript" type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 </head>
 <body>
-<p>Right click to set pivot point. Then click on a path.</p>
 <script type="text/javascript">
 
 $(document).ready(function() {
@@ -27,6 +26,8 @@ $(document).ready(function() {
         pivotPoint = null,
         pivotPoints = [],
         polyLines = [],
+        lineWidth = 1,
+        year = 2000,
         debug = true;
 
     $exports.buildJSON(source, function(d) {
@@ -98,7 +99,7 @@ $(document).ready(function() {
     });
 
     function draw() {
-        exports = data.exports.years[$('#year').html()];
+        exports = data.exports.years[year];
         totalExports = exports['(Total)'].exports;
 
         //from source node.
@@ -126,7 +127,7 @@ $(document).ready(function() {
                 path: [geoOfNode(data.nodes[node].parent), geoOfNode(node)],
                 strokeColor: "#FF0000",
                 strokeOpacity: 1,
-                strokeWeight: 0.1 + (pathExports / totalExports) * 40,
+                strokeWeight: 0.1 + (pathExports / totalExports) * lineWidth,
                 map: map
             });
 
@@ -433,10 +434,19 @@ $(document).ready(function() {
         }
     });
 
-    $("#slider").slider({ min: 2000, max: 2011 });
+    $("#sliderYear").slider({ min: 2000, max: 2011 });
 
-    $("#slider").bind( "slide", function(event, ui) {
-       $("#year").html(ui.value);
+    $("#sliderYear").bind( "slide", function(event, ui) {
+        year = ui.value;
+        $("#year").html(ui.value);
+        redraw();
+    });
+    
+    $("#sliderLineWidth").slider({ min: 1, max: 100 });
+
+    $("#sliderLineWidth").bind( "slide", function(event, ui) {
+        lineWidth = ui.value;
+        $("#lineWidth").html(ui.value);
         redraw();
     });
 
@@ -450,8 +460,13 @@ $(document).ready(function() {
 </script>
 
 <div id="map_canvas" style="height:600px;width:1000px"></div> 
-<div id="slider" style="width:1000px;"></div>
+Year:
+<div id="sliderYear" style="width:1000px;"></div>
 <div id="year">2000</div>
+<br />
+Line Width Multiplier:
+<div id="sliderLineWidth" style="width:1000px;"></div>
+<div id="lineWidth">1</div>
 
 <input id="btnSave" type="button" value="save" />
 <input id="btnDebug" type="button" value="debug" />
