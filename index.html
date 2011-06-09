@@ -173,14 +173,13 @@ $(document).ready(function() {
         //create pivot if it doesnt exist.
         // the pivots parent.
         if (!(pivot in data.nodes)){
-            data.nodes[pivot] = [parent]; // create
-            data.nodes[parent].push(pivot); // give parent
+            data.nodes[pivot] = {'parent':parent,'children':[]}; // create
+            data.nodes[parent].children.push(pivot); // give parent
         }
-        data.nodes[node].push(pivot); // add pivot to node as new parent.
-        data.nodes[pivot].push(node); // add pivot to node
+        data.nodes[node].parent = pivot; // add pivot to node as new parent.
+        data.nodes[pivot].children.push(node); // add pivot to node
 
-        data.nodes[node].splice(data.nodes[node].indexOf(parent),1); //remove parent from node.
-        data.nodes[parent].splice(data.nodes[parent].indexOf(node),1); // remove node from parent;
+        data.nodes[parent].children.splice(data.nodes[parent].children.indexOf(node),1); // remove node from parent;
     }
 
     function addMarker(map, latlng) {
