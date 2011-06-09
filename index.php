@@ -449,7 +449,7 @@ $(document).ready(function() {
         redraw();
     });
     
-    $("#sliderLineWidth").slider({ min: 1, max: 100 });
+    $("#sliderLineWidth").slider({ min: 10, max: 1000});
 
     $("#sliderLineWidth").bind( "slide", function(event, ui) {
         lineWidth = ui.value;
