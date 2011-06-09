@@ -51,6 +51,7 @@ $(document).ready(function() {
                     if (selectedPivot != null){
                         // have a selected pivot move it.
                         movePivot(selectedPivot,nodeOf(event.latLng),data.nodes);
+                        selectedPivot =null;
                     } else {
                         pivotPoint = addMarker(map, event.latLng);
                     }
