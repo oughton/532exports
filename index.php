@@ -450,6 +450,13 @@ $(document).ready(function() {
         redraw();
     });
 
+    $('#checkPivots').click(function(e) {
+        debug = !$(this).is(':checked');
+        $.each(pivotPoints, function(index, pivot) {
+            pivot.setVisible(!pivot.getVisible());
+        });
+    });
+
     function fixData(data){
         $.each(data.nodes, function(key,value){
             if (value.children == "") value.children = [];
@@ -472,5 +479,6 @@ Line Width Multiplier:
 <input id="btnDebug" type="button" value="debug" />
 <input id="btnRedraw" type="button" value="redraw" />
 <input id="btnDeletePivot" type="button" value="delete pivot" />
+<input id="checkPivots" type="checkbox" value="toggle pivots" /> toggle pivots
 </body>
 </html>
