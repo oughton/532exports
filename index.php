@@ -35,7 +35,7 @@ $(document).ready(function() {
         polyLines = [],
         lineWidth = 1,
         year = 2000,
-        debug = true;
+        debug = false;
 
     $exports.buildJSON(source, function(d) {
         data = d;
@@ -203,7 +203,7 @@ $(document).ready(function() {
             position: latlng, 
             map: map,
             animation: google.maps.Animation.DROP,
-            title: 'pivot'
+            title: 'lng: ' + latlng.lat() + '\nlat: ' + latlng.lng()
         });
         
         m.setVisible(debug);
@@ -458,7 +458,7 @@ $(document).ready(function() {
     });
 
     $('#checkPivots').click(function(e) {
-        debug = !$(this).is(':checked');
+        debug = !debug;
         $.each(pivotPoints, function(index, pivot) {
             pivot.setVisible(!pivot.getVisible());
         });
