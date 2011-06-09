@@ -32,6 +32,7 @@ $(document).ready(function() {
 
         $.getJSON('public/nodesfile',function(loaded){
             data.nodes = loaded;
+            fixData(data);
 
             var geocoder = new google.maps.Geocoder();
             
@@ -278,8 +279,8 @@ $(document).ready(function() {
     }
 
     function traverse_nodes(node, parent, nodes, callback){
-        var queue = data.nodes[node];
-        if (parent != null) {callback(node,parent);}
+        var queue = nodes[node].children;
+        if (parent != null) {callback(node,nodes[node].parent);}
         $.each(queue, function (key,value){
             if (value != parent){
                 traverse_nodes(value,node,nodes,callback);
@@ -376,6 +377,12 @@ $(document).ready(function() {
     $('#btnRedraw').click(function() {
         redraw();
     });
+
+    function fixData(data){
+        $.each(data.nodes, function(key,value){
+            if (value.children == "") value.children = [];
+        });
+    }
 });
 
 </script>
