@@ -101,10 +101,10 @@ $(document).ready(function() {
         var sourceNode = nodeOf(sourceGeo);
         var topQueue = data.nodes[sourceNode].children;
         $.each(topQueue, function(index, value){
-            drawFromNode(value, sourceNode);
+            drawFromNode(value);
         });
 
-        function drawFromNode(node,parent){
+        function drawFromNode(node){
             //returns the weight of what its done.
             var queue = data.nodes[node].children;
             var pathExports =0; //sum of value for weight.
@@ -114,14 +114,12 @@ $(document).ready(function() {
                 pathExports = new Number(exports[name].exports);
             } else {
                 $.each(queue, function(key,value){
-                    if (value != parent){
-                        pathExports += drawFromNode(value, node);
-                    }
+                    pathExports += drawFromNode(value);
                 });
             }
 
             var exportPath = new google.maps.Polyline({
-                path: [geoOfNode(parent), geoOfNode(node)],
+                path: [geoOfNode(data.nodes[node].parent), geoOfNode(node)],
                 strokeColor: "#FF0000",
                 strokeOpacity: 1,
                 strokeWeight: 0.1 + (pathExports / totalExports) * 40,
