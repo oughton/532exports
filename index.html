@@ -154,15 +154,16 @@ $(document).ready(function() {
 
     function movePivot(source, dest, nodes){
         nodes[dest] = nodes[source];
+        var par = nodes[source].parent;
         delete nodes[source];
 
-        $.each(nodes,function(key,value){
-            if (value != undefined){
-                if (value.children.indexOf(source) != -1){
-                    nodes[key].children.splice(nodes[key].children.indexOf(source),1); //remove reference to old pivot.
-                    nodes[key].children.push(dest);
-                }
-            }
+        //update pivots parent to point to parent.
+        nodes[par].children.splice(nodes[par].children.indexOf(source),1);
+        nodes[par].children.push(dest);
+
+        //update pivots children to point to new location.
+        $.each(nodes[dest].children,function(key,value){
+            nodes[value].parent = dest;
         });
 
         redraw();
