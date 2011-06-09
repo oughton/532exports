@@ -449,7 +449,7 @@ $(document).ready(function() {
         redraw();
     });
     
-    $("#sliderLineWidth").slider({ min: 10, max: 100});
+    $("#sliderLineWidth").slider({ min: 40, max: 100});
 
     $("#sliderLineWidth").bind( "slide", function(event, ui) {
         lineWidth = ui.value;
@@ -465,7 +465,9 @@ $(document).ready(function() {
     });
     
     $("#lineWidth").html($("#sliderLineWidth").slider('value'));
+    lineWidth = $("#sliderLineWidth").slider('value');
     $("#year").html($("#sliderYear").slider('value'));
+    year = $("#sliderYear").slider('value');
 
     function fixData(data){
         $.each(data.nodes, function(key,value){
