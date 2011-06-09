@@ -14,6 +14,13 @@
 <p>Right click to set pivot point. Then click on a path.</p>
 <script type="text/javascript">
 
+<?php
+$saveFile = "nodesfile";
+if (array_key_exists("s",$_GET)){
+    $saveFile = $_GET["s"];
+}
+?>
+
 $(document).ready(function() {
     var geocoder = new google.maps.Geocoder(),
         source = "New Zealand",
@@ -33,7 +40,7 @@ $(document).ready(function() {
         data = d;
         build_geo_table(data);
 
-        $.getJSON('public/nodesfile',function(loaded){
+        $.getJSON('<?php echo "public/$saveFile"; ?>',function(loaded){
             data.nodes = loaded;
             fixData(data);
 
@@ -383,7 +390,7 @@ $(document).ready(function() {
 
     function save(){
         var s_save = data.nodes;
-        $.post('php/save.php?filename=nodesfile', {nodes: data.nodes });
+        $.post('<?php echo "php/save.php?filename=$saveFile"; ?>', {nodes: data.nodes });
         alert('save');
     }
 
