@@ -465,7 +465,9 @@ $(document).ready(function() {
     });
     
     $("#lineWidth").html($("#sliderLineWidth").slider('value'));
+    lineWidth = $("#sliderLineWidth").slider('value');
     $("#year").html($("#sliderYear").slider('value'));
+    year = $("#sliderYear").slider('value');
 
     function fixData(data){
         $.each(data.nodes, function(key,value){
