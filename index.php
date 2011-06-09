@@ -51,7 +51,7 @@ $(document).ready(function() {
                 sourceGeo = geo[0].geometry.location;
 
                 var opts = {
-                  zoom: 8,
+                  zoom: 2,
                   center: geo[0].geometry.location,
                   mapTypeId: google.maps.MapTypeId.ROADMAP
                 }
