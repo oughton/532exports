@@ -3,7 +3,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Export Vis</title>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+
 <script language="javascript" type="text/javascript" src="js/jquery-1.5.2.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/exports.js"></script>
 <script language="javascript" type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 </head>
@@ -428,6 +431,13 @@ $(document).ready(function() {
         }
     });
 
+    $("#slider").slider({ min: 2000, max: 2011 });
+
+    $("#slider").bind( "slide", function(event, ui) {
+       $("#year").html(ui.value);
+        // TODO: redraw using this date
+    });
+
     function fixData(data){
         $.each(data.nodes, function(key,value){
             if (value.children == "") value.children = [];
@@ -436,7 +446,11 @@ $(document).ready(function() {
 });
 
 </script>
+
 <div id="map_canvas" style="height:600px;width:1000px"></div> 
+<div id="slider" style="width:1000px;"></div>
+<div id="year">2000</div>
+
 <input id="btnSave" type="button" value="save" />
 <input id="btnDebug" type="button" value="debug" />
 <input id="btnRedraw" type="button" value="redraw" />
