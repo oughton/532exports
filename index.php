@@ -481,11 +481,11 @@ $(document).ready(function() {
 <div id="map_canvas" style="height:500px;width:1000px"></div> 
 Year:
 <div id="sliderYear" style="width:1000px;"></div>
-<div id="year">2000</div>
+<div id="year" style="font-weight:bold; font-size:16pt; text-align:center;">2000</div>
 <br />
 Line Width Multiplier:
 <div id="sliderLineWidth" style="width:1000px;"></div>
-<div id="lineWidth">1</div>
+<div id="lineWidth" style="font-weight:bold; font-size:16pt; text-align:center;">1</div>
 
 <input id="btnSave" type="button" value="save" />
 <input id="btnDebug" type="button" value="debug" />
