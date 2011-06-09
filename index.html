@@ -98,14 +98,14 @@ $(document).ready(function() {
     function draw() {
         //from source node.
         var sourceNode = nodeOf(sourceGeo);
-        var topQueue = data.nodes[sourceNode];
+        var topQueue = data.nodes[sourceNode].children;
         $.each(topQueue, function(index, value){
             drawFromNode(value, sourceNode);
         });
 
         function drawFromNode(node,parent){
             //returns the weight of what its done.
-            var queue = data.nodes[node];
+            var queue = data.nodes[node].children;
             var pathExports =0; //sum of value for weight.
             if (node in locations) {
                 //draw
