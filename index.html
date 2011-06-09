@@ -16,6 +16,7 @@ $(document).ready(function() {
         source = "New Zealand",
         data = {},
         locations,
+        selectedPivot = null,
         pivotPoint = null,
         debug = true;
 
@@ -39,9 +40,12 @@ $(document).ready(function() {
                 var exports = data.exports.years['2010'];
                 var totalExports = exports['(Total)'].exports;
                 google.maps.event.addListener(map, 'rightclick', function(event){
-                    // drop marker
-                    pivotPoint = addMarker(map, event.latLng); 
-                    
+                    if (selectedPivot != null){
+                        // have a selected pivot move it.
+                        movePivot(selectedPivot,nodeOf(event.latLng),data.nodes);
+                    } else {
+                        pivotPoint = addMarker(map, event.latLng);
+                    }
                 });
 
                 var multiP1,multiP2;
@@ -125,6 +129,20 @@ $(document).ready(function() {
         
     });
 
+    function movePivot(source, dest, nodes){
+        nodes[dest] = nodes[source];
+        delete nodes[source];
+
+        $.each(nodes,function(key,value){
+            if (value != undefined){
+                if (value.indexOf(source) != -1){
+                    nodes[key].splice(nodes[key].indexOf(source),1); //remove reference to old pivot.
+                    nodes[key].push(dest);
+                }
+            }
+        });
+    }
+
     function addToPivot(pivot, node, parent){
         if(node == undefined | pivot == undefined | parent == undefined){
             //this could introduce errors in the data structure.
@@ -154,6 +172,7 @@ $(document).ready(function() {
         m.setVisible(debug);
         
         google.maps.event.addListener(m, 'click', function(){
+            selectedPivot = nodeOf(m.getPosition());
             if (m.getAnimation() != null) {
                 m.setAnimation(null);
             } else {
