@@ -204,9 +204,24 @@ $(document).ready(function() {
                     m.setAnimation(null);
                 }, 1000);
             }
+
+            pivotPoint = m;
         });
 
         return m;
+    }
+
+    function removeMarker(latlng) {
+        var i;
+
+        $.each(pivotPoints, function(index, pivot) {
+            if (pivot.getPosition().equals(latlng)) {
+                pivot.setMap(null);
+                i = index;
+            }
+        });
+
+        pivotPoints.splice(i, 1);
     }
 
     function mergeNodes(n1, n2) {
@@ -255,6 +270,31 @@ $(document).ready(function() {
             }
         });
         data.nodes[parent].splice(n2i, 1);
+    }
+
+    function deleteNode(node) {
+        // just remove pivot marker if that is all that exists
+        if (!data.nodes[node]) {
+            removeMarker(geoOfNode(node));
+            return;
+        }
+
+        var parent = data.nodes[node].parent;
+
+        // loop through all children
+        //      attach the children to the source node and source node to the children
+        $.each(data.nodes[node].children, function(index, n) {
+            data.nodes[n].parent = nodeOf(sourceGeo);           // set chilren parent to be source
+            data.nodes[nodeOf(sourceGeo)].children.push(n);     // attach children to source
+        });
+
+        // delete reference to node in parent
+        data.nodes[parent].children.splice(data.nodes[parent].children.indexOf(node), 1);
+
+        // delete the node
+        delete data.nodes[node];
+
+        redraw();
     }
 
     function nodeOf(object){
@@ -350,6 +390,7 @@ $(document).ready(function() {
         });
 
         pivotPoint = null;
+        selectedPivot = null;
         polyLines = [];
         pivotPoints = [];
     }
@@ -378,6 +419,13 @@ $(document).ready(function() {
         redraw();
     });
 
+    // add handler to redraw button
+    $('#btnDeletePivot').click(function() {
+        if (pivotPoint) {
+            deleteNode(nodeOf(pivotPoint.getPosition())); 
+        }
+    });
+
     function fixData(data){
         $.each(data.nodes, function(key,value){
             if (value.children == "") value.children = [];
@@ -390,5 +438,6 @@ $(document).ready(function() {
 <input id="btnSave" type="button" value="save" />
 <input id="btnDebug" type="button" value="debug" />
 <input id="btnRedraw" type="button" value="redraw" />
+<input id="btnDeletePivot" type="button" value="delete pivot" />
 </body>
 </html>
