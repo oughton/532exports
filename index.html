@@ -77,7 +77,7 @@ $(document).ready(function() {
                             }
                         });
                         $.each(tomove, function(key,value){
-                            addToPivot(nodeOf(pivotPoint.getPosition()),value[0],value[1]);
+                            addToPivot(nodeOf(pivotPoint.getPosition()),value[0]);
                         });
 
 
@@ -101,10 +101,10 @@ $(document).ready(function() {
         var sourceNode = nodeOf(sourceGeo);
         var topQueue = data.nodes[sourceNode].children;
         $.each(topQueue, function(index, value){
-            drawFromNode(value, sourceNode);
+            drawFromNode(value);
         });
 
-        function drawFromNode(node,parent){
+        function drawFromNode(node){
             //returns the weight of what its done.
             var queue = data.nodes[node].children;
             var pathExports =0; //sum of value for weight.
@@ -114,14 +114,12 @@ $(document).ready(function() {
                 pathExports = new Number(exports[name].exports);
             } else {
                 $.each(queue, function(key,value){
-                    if (value != parent){
-                        pathExports += drawFromNode(value, node);
-                    }
+                    pathExports += drawFromNode(value);
                 });
             }
 
             var exportPath = new google.maps.Polyline({
-                path: [geoOfNode(parent), geoOfNode(node)],
+                path: [geoOfNode(data.nodes[node].parent), geoOfNode(node)],
                 strokeColor: "#FF0000",
                 strokeOpacity: 1,
                 strokeWeight: 0.1 + (pathExports / totalExports) * 40,
@@ -142,7 +140,8 @@ $(document).ready(function() {
                       var n1 = nodeOf(path.getArray()[0]);
                       var n2 = nodeOf(path.getArray()[1]);
 
-                      addToPivot(nodeOf(pivotPoint.getPosition()),n2,n1);
+                      addToPivot(nodeOf(pivotPoint.getPosition()),n2); //hope this is further away from source.
+                      redraw();
                   }
              });
             return pathExports;
@@ -155,9 +154,9 @@ $(document).ready(function() {
 
         $.each(nodes,function(key,value){
             if (value != undefined){
-                if (value.indexOf(source) != -1){
-                    nodes[key].splice(nodes[key].indexOf(source),1); //remove reference to old pivot.
-                    nodes[key].push(dest);
+                if (value.children.indexOf(source) != -1){
+                    nodes[key].children.splice(nodes[key].children.indexOf(source),1); //remove reference to old pivot.
+                    nodes[key].children.push(dest);
                 }
             }
         });
@@ -165,20 +164,23 @@ $(document).ready(function() {
         redraw();
     }
 
-    function addToPivot(pivot, node, parent){
-        if(node == undefined | pivot == undefined | parent == undefined){
+    function addToPivot(pivot, node){
+        if(node == undefined | pivot == undefined){
             //this could introduce errors in the data structure.
-            console.log('undefined in addToPivot',node,pivot,parent);
+            console.log('undefined in addToPivot',node,pivot);
             return;
         }
         //create pivot if it doesnt exist.
         // the pivots parent.
+        var parent = data.nodes[node].parent;
         if (!(pivot in data.nodes)){
             data.nodes[pivot] = {'parent':parent,'children':[]}; // create
             data.nodes[parent].children.push(pivot); // give parent
         }
         data.nodes[node].parent = pivot; // add pivot to node as new parent.
         data.nodes[pivot].children.push(node); // add pivot to node
+
+
 
         data.nodes[parent].children.splice(data.nodes[parent].children.indexOf(node),1); // remove node from parent;
     }
