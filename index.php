@@ -463,6 +463,9 @@ $(document).ready(function() {
             pivot.setVisible(!pivot.getVisible());
         });
     });
+    
+    $("#lineWidth").html($("#sliderLineWidth").slider('value'));
+    $("#year").html($("#sliderYear").slider('value'));
 
     function fixData(data){
         $.each(data.nodes, function(key,value){
@@ -473,7 +476,7 @@ $(document).ready(function() {
 
 </script>
 
-<div id="map_canvas" style="height:600px;width:1000px"></div> 
+<div id="map_canvas" style="height:500px;width:1000px"></div> 
 Year:
 <div id="sliderYear" style="width:1000px;"></div>
 <div id="year">2000</div>
