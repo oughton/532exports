@@ -155,9 +155,9 @@ $(document).ready(function() {
 
         $.each(nodes,function(key,value){
             if (value != undefined){
-                if (value.indexOf(source) != -1){
-                    nodes[key].splice(nodes[key].indexOf(source),1); //remove reference to old pivot.
-                    nodes[key].push(dest);
+                if (value.children.indexOf(source) != -1){
+                    nodes[key].children.splice(nodes[key].children.indexOf(source),1); //remove reference to old pivot.
+                    nodes[key].children.push(dest);
                 }
             }
         });
