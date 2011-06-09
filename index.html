@@ -49,8 +49,6 @@ $(document).ready(function() {
                 }
 
                 map = new google.maps.Map(document.getElementById("map_canvas"), opts);
-                exports = data.exports.years['2010'];
-                totalExports = exports['(Total)'].exports;
                 google.maps.event.addListener(map, 'rightclick', function(event){
                     if (selectedPivot != null){
                         // have a selected pivot move it.
@@ -100,6 +98,9 @@ $(document).ready(function() {
     });
 
     function draw() {
+        exports = data.exports.years[$('#year').html()];
+        totalExports = exports['(Total)'].exports;
+
         //from source node.
         var sourceNode = nodeOf(sourceGeo);
         var topQueue = data.nodes[sourceNode].children;
@@ -435,7 +436,7 @@ $(document).ready(function() {
 
     $("#slider").bind( "slide", function(event, ui) {
        $("#year").html(ui.value);
-        // TODO: redraw using this date
+        redraw();
     });
 
     function fixData(data){
