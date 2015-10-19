@@ -41,9 +41,8 @@ def get_short_path(nodes, from_node, to_node):
     short_path = path.shortest_path(graph, from_node, to_node)
 
     result = []
-    for node in nodes:
-        if node['node'] in short_path:
-            result.append(node)
+    for node_id in short_path:
+        result.append(node_lookup[node_id])
 
     return result
 

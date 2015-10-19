@@ -6,7 +6,7 @@ $(document).ready(function() {
 
         for (var i = 0; i < nodes.length; i++) {
             node = nodes[i];
-            _drawNode(map, node);
+            //_drawNode(map, node);
             node_lookup[node.node] = node;
         };
 
@@ -18,7 +18,7 @@ $(document).ready(function() {
                 var to_node = node_lookup[edge]
 
                 if (to_node)
-                    _drawLine(map, from_node.lat, from_node.lon, to_node.lat, to_node.lon);
+                    _drawLine(map, from_node.lat, from_node.lon, to_node.lat, to_node.lon, to_node.value);
             };
         };
     };
@@ -40,7 +40,7 @@ $(document).ready(function() {
         });
     };
 
-    var _drawLine = function(map, from_lat, from_lon, to_lat, to_lon) {
+    var _drawLine = function(map, from_lat, from_lon, to_lat, to_lon, weight) {
         var coords = [
             {lat: from_lat, lng: from_lon},
             {lat: to_lat, lng: to_lon}
@@ -51,7 +51,7 @@ $(document).ready(function() {
             geodesic: true,
             strokeColor: '#FF0000',
             strokeOpacity: 1.0,
-            strokeWeight: 2
+            strokeWeight: (weight / 43532288542.0) * 50 // FIXME:
           });
 
           path.setMap(map);
