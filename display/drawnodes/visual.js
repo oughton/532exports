@@ -51,7 +51,7 @@ $(document).ready(function() {
             geodesic: true,
             strokeColor: '#FF0000',
             strokeOpacity: 1.0,
-            strokeWeight: (weight / 43532288542.0) * 50 // FIXME:
+            strokeWeight: weight * 50
           });
 
           path.setMap(map);
