@@ -52,9 +52,9 @@ $(document).ready(function() {
             strokeColor: '#FF0000',
             strokeOpacity: 1.0,
             strokeWeight: weight * 50
-          });
+        });
 
-          path.setMap(map);
+        path.setMap(map);
     };
 
     var _createMap = function(mapLatLon) {
