@@ -19,6 +19,8 @@ def get_country_geo(results, country):
             if 'country' in result['types']:
                 country_count += 1
 
+        # Perform some basic sanity checking.
+
         if country_count == 0:
             logging.warning('no country location from for: %s' % country)
             return
@@ -27,6 +29,7 @@ def get_country_geo(results, country):
             return
 
     for result in results:
+        # Skip results that do not have the country type
         if 'country' not in result['types']:
             continue
 
@@ -47,6 +50,7 @@ def geocode(api_key, country):
     return get_country_geo(data['results'], country)
 
 def read_countries(countries_path):
+    logging.info('reading country data')
     with open(countries_path, 'r') as f:
         return f.read().splitlines()
 
@@ -54,10 +58,14 @@ def run(api_key, countries_path, output_path):
     countries = read_countries(countries_path)
     results = []
 
+    logging.info('geocoding countries')
+
     for country in countries:
         geo = geocode(api_key, country)
         if geo:
             results.append(geo)
+
+    logging.info('writing json output to %s' % output_path)
 
     with open(output_path, 'w') as outfile:
         json.dump(results, outfile)
@@ -65,7 +73,6 @@ def run(api_key, countries_path, output_path):
     print_results(results)
 
 def print_results(results):
-    print '***** Results *****'
     for result in results:
         location = result['location']
         print '%s,%s,%s' % (result['name'], location['lat'], location['lng'])
