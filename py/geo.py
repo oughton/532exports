@@ -1,6 +1,6 @@
 from math import sin, cos, sqrt, atan2, radians, asin
 
-def latlon_distance(lon1, lat1, lon2, lat2):
+def latlon_distance(lat1, lon1, lat2, lon2):
     """
     Calculate the great circle distance between two points 
     on the earth (specified in decimal degrees)
